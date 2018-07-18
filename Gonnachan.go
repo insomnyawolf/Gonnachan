@@ -110,7 +110,7 @@ func (c *KonachanPostRequest) GetResults() []KonachanPostResult {
 	return results
 }
 
-//KonachanPostResult has usefull data obtained from the API
+//KonachanPostResult has useful data obtained from the API
 type KonachanPostResult struct {
 	ID       int64  `json:"id"`
 	Tags     string `json:"tags"`
