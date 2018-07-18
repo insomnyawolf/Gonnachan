@@ -1,10 +1,10 @@
 package gonnachan
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -41,30 +41,28 @@ func (c *KonachanPostRequest) APIrequest() string {
 	tags := ""
 
 	if c.RandOrder {
-		tags += "order%3Arandom+"
+		tags += "order:random+"
 	}
 
-	for _, t := range c.Tags {
-		tags += t + "+"
-	}
+	tags = strings.Join(c.Tags, "+")
 
 	if c.Rating != "" {
-		tags += fmt.Sprintf("rating%%3A%v", c.Rating)
+		tags += fmt.Sprintf("rating:%v", c.Rating)
 	}
 
 	if c.Height != 0 {
-		tags += fmt.Sprintf("height%%3A%v+", c.Height)
+		tags += fmt.Sprintf("height:%v+", c.Height)
 	}
 
 	if c.Width != 0 {
-		tags += fmt.Sprintf("width%%3A%v", c.Width)
+		tags += fmt.Sprintf("width:%v", c.Width)
 	}
 
 	if c.MaxResults == 0 {
 		c.MaxResults = 1
 	}
 
-	return fmt.Sprintf("%vlimit=%v&tags=%v", APIurl, strconv.Itoa(c.MaxResults), tags)
+	return APIurl + url.QueryEscape(fmt.Sprintf("limit=%v&tags=%v", strconv.Itoa(c.MaxResults), tags))
 }
 
 //GetResults runs the query obtained at APIrequest and returns KonachanPostResult
@@ -79,11 +77,12 @@ func (c *KonachanPostRequest) GetResults() []KonachanPostResult {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	if bytes.Equal(thing, []byte("[]")) {
+	if string(thing) == "[]" {
 		return nil
 	}
 
-	var results []KonachanPostResult
+	//Single alocation
+	results := make([]KonachanPostResult, 0, c.MaxResults)
 
 	for x := 0; x < c.MaxResults; x++ {
 
