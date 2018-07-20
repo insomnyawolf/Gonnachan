@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -38,31 +37,36 @@ type KonachanPostRequest struct {
 //APIrequest parse KonachanPostRequest to get the equivalent api query url
 func (c *KonachanPostRequest) APIrequest() string {
 
-	tags := ""
+	tags := strings.Join(c.Tags, "+")
 
-	if c.RandOrder {
-		tags += "order:random+"
+	if tags != "" {
+		tags += "+"
 	}
 
-	tags = strings.Join(c.Tags, "+")
+	if c.RandOrder {
+		tags += "order%3Arandom+"
+	}
 
 	if c.Rating != "" {
-		tags += fmt.Sprintf("rating:%v", c.Rating)
+		tags += fmt.Sprintf("rating%%3A%v+", c.Rating)
 	}
 
 	if c.Height != 0 {
-		tags += fmt.Sprintf("height:%v+", c.Height)
+		tags += fmt.Sprintf("height%%3A%v+", c.Height)
 	}
 
 	if c.Width != 0 {
-		tags += fmt.Sprintf("width:%v", c.Width)
+		tags += fmt.Sprintf("width%%3A%v+", c.Width)
 	}
 
 	if c.MaxResults == 0 {
 		c.MaxResults = 1
 	}
 
-	return APIurl + url.QueryEscape(fmt.Sprintf("limit=%v&tags=%v", strconv.Itoa(c.MaxResults), tags))
+	query := fmt.Sprintf("limit=%v&tags=%v", strconv.Itoa(c.MaxResults), tags)
+	uri := APIurl + query
+	fmt.Println(uri)
+	return uri
 }
 
 //GetResults runs the query obtained at APIrequest and returns KonachanPostResult
