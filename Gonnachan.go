@@ -12,7 +12,8 @@ import (
 
 const (
 	//APIurl Base address for api requests
-	APIurl = "http://konachan.com/post.json?"
+	URL         = "http://konachan.com"
+	APIendPoint = "/post.json?"
 
 	//Rating
 
@@ -32,6 +33,11 @@ type KonachanPostRequest struct {
 	Height     int
 	Width      int
 	MaxResults int
+}
+
+//Close EOL
+func (c *KonachanPostRequest) Close() {
+	c = nil
 }
 
 //APIrequest parse KonachanPostRequest to get the equivalent api query url
@@ -64,8 +70,7 @@ func (c *KonachanPostRequest) APIrequest() string {
 	}
 
 	query := fmt.Sprintf("limit=%v&tags=%v", strconv.Itoa(c.MaxResults), tags)
-	uri := APIurl + query
-	fmt.Println(uri)
+	uri := URL + APIendPoint + query
 	return uri
 }
 
@@ -126,4 +131,28 @@ type KonachanPostResult struct {
 	Rating   string `json:"rating"`
 	Width    int64  `json:"width"`
 	Height   int64  `json:"height"`
+}
+
+//Close EOL
+func (c *KonachanPostResult) Close() {
+	c = nil
+}
+
+//GetPostUrl returns Konachan post url
+func (c *KonachanPostResult) GetPostUrl() string {
+	return fmt.Sprintf("%v/post/show/%v", URL, c.ID)
+}
+
+//RatingToString Returns the human-readable sting for rating values
+func (c *KonachanPostResult) RatingString() string {
+	switch c.Rating {
+	case RatingSafe:
+		return "Safe"
+	case RatingQuestionable:
+		return "Questionable"
+	case RatingExplicit:
+		return "Explicit"
+	default:
+		return ""
+	}
 }
