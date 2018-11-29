@@ -3,6 +3,7 @@ package gonnachan
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,10 +12,18 @@ import (
 )
 
 const (
-	//APIurl Base address for api requests
-	URL         = "http://konachan.com"
-	APIendPoint = "/post.json?"
+	//Konachan APIendPoint
+	Konachan = "http://konachan.com/post.json?"
+	//Gelbooru APIendPoint
+	Gelbooru = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&"
+)
 
+var (
+	//URL Base address for the requests
+	URL string
+)
+
+const (
 	//Rating
 
 	//RatingSafe PG
@@ -28,11 +37,14 @@ const (
 //KonachanPostRequest store data prepare the api querry
 type KonachanPostRequest struct {
 	Tags       []string
+	BeforeID   int64
+	AfterID    int
 	RandOrder  bool
 	Rating     string
 	Height     int
 	Width      int
 	MaxResults int
+	TargetAPI  string
 }
 
 //Close EOL
@@ -47,6 +59,14 @@ func (c *KonachanPostRequest) APIrequest() string {
 
 	if tags != "" {
 		tags += "+"
+	}
+
+	if c.BeforeID != 0 {
+		tags += fmt.Sprintf("id:<%v+", c.BeforeID)
+	}
+
+	if c.AfterID != 0 {
+		tags += fmt.Sprintf("id:>%v+", c.AfterID)
 	}
 
 	if c.RandOrder {
@@ -70,7 +90,12 @@ func (c *KonachanPostRequest) APIrequest() string {
 	}
 
 	query := fmt.Sprintf("limit=%v&tags=%v", strconv.Itoa(c.MaxResults), tags)
-	uri := URL + APIendPoint + query
+	if c.TargetAPI == "" {
+		URL = Konachan
+	} else {
+		URL = c.TargetAPI
+	}
+	uri := URL + query
 	return uri
 }
 
@@ -79,22 +104,20 @@ func (c *KonachanPostRequest) GetResults() []KonachanPostResult {
 	URL := c.APIrequest()
 	res, err := http.Get(URL)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err)
 	}
 	defer res.Body.Close()
 	thing, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err)
 	}
 	if string(thing) == "[]" {
 		return nil
 	}
 
 	//Single alocation
-	results := make([]KonachanPostResult, 0, c.MaxResults)
-
+	var results []KonachanPostResult
 	for x := 0; x < c.MaxResults; x++ {
-
 		r := KonachanPostResult{
 			ID:       gjson.GetBytes(thing, fmt.Sprintf("%v.id", x)).Int(),
 			Tags:     gjson.GetBytes(thing, fmt.Sprintf("%v.tags", x)).String(),
@@ -114,7 +137,6 @@ func (c *KonachanPostRequest) GetResults() []KonachanPostResult {
 		}
 		results = append(results, r)
 	}
-
 	return results
 }
 
@@ -138,12 +160,12 @@ func (c *KonachanPostResult) Close() {
 	c = nil
 }
 
-//GetPostUrl returns Konachan post url
-func (c *KonachanPostResult) GetPostUrl() string {
+//GetPostURL returns Konachan post url
+func (c *KonachanPostResult) GetPostURL() string {
 	return fmt.Sprintf("%v/post/show/%v", URL, c.ID)
 }
 
-//RatingToString Returns the human-readable sting for rating values
+//RatingString Returns the human-readable sting for rating values
 func (c *KonachanPostResult) RatingString() string {
 	switch c.Rating {
 	case RatingSafe:
