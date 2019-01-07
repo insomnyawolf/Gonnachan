@@ -127,7 +127,7 @@ func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 		log.Fatal(err)
 	}
 	if string(thing) == "[]" {
-		return nil, errors.New("No results Response")
+		return nil, errors.New("No results")
 	}
 	if string(thing) == "" {
 		return nil, errors.New("Empty Response")
@@ -136,26 +136,37 @@ func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 	//Single alocation
 	var results []KonachanPostResult
 	for x := 0; x < c.MaxResults; x++ {
-		r := KonachanPostResult{}
-		ID := gjson.GetBytes(thing, fmt.Sprintf("%v.id", x))
-		if !ID.Exists() {
+		id := gjson.GetBytes(thing, fmt.Sprintf("%v.id", x))
+		if !id.Exists() {
 			break
 		}
-		r.ID = ID.Int()
-		r.Tags = gjson.GetBytes(thing, fmt.Sprintf("%v.tags", x)).String()
-		r.Author = gjson.GetBytes(thing, fmt.Sprintf("%v.author", x)).String()
-		r.Source = gjson.GetBytes(thing, fmt.Sprintf("%v.source", x)).String()
-		r.Score = gjson.GetBytes(thing, fmt.Sprintf("%v.score", x)).Int()
-		r.FileSize = gjson.GetBytes(thing, fmt.Sprintf("%v.file_size", x)).Int()
-		r.FileURL = gjson.GetBytes(thing, fmt.Sprintf("%v.file_url", x)).String()
-		r.Rating = gjson.GetBytes(thing, fmt.Sprintf("%v.rating", x)).String()
-		r.Width = gjson.GetBytes(thing, fmt.Sprintf("%v.width", x)).Int()
-		r.Height = gjson.GetBytes(thing, fmt.Sprintf("%v.height", x)).Int()
+		r := KonachanPostResult{
+			ID:       id.Int(),
+			Tags:     gjson.GetBytes(thing, fmt.Sprintf("%v.tags", x)).String(),
+			Author:   gjson.GetBytes(thing, fmt.Sprintf("%v.author", x)).String(),
+			Source:   gjson.GetBytes(thing, fmt.Sprintf("%v.source", x)).String(),
+			Score:    gjson.GetBytes(thing, fmt.Sprintf("%v.score", x)).Int(),
+			FileSize: gjson.GetBytes(thing, fmt.Sprintf("%v.file_size", x)).Int(),
+			Rating:   gjson.GetBytes(thing, fmt.Sprintf("%v.rating", x)).String(),
+			Width:    gjson.GetBytes(thing, fmt.Sprintf("%v.width", x)).Int(),
+			Height:   gjson.GetBytes(thing, fmt.Sprintf("%v.height", x)).Int(),
+		}
+		//Safebooru Specific Code
+		if c.TargetAPI == APISafebooru {
+			image := gjson.GetBytes(thing, fmt.Sprintf("%v.directory", x)).String()
+			directory := gjson.GetBytes(thing, fmt.Sprintf("%v.image", x)).String()
+			r.FileURL = fmt.Sprintf("safebooru.org/images/%s/%s", directory, image)
+		} else {
+			r.FileURL = gjson.GetBytes(thing, fmt.Sprintf("%v.file_url", x)).String()
+		}
+
+		//Gelboru Specific Code
 		if c.TargetAPI == APIGelbooru {
 			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.hash", x)).String()
 		} else {
 			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.md5", x)).String()
 		}
+
 		//Fix url for konachan sites which doesn't start with http: on the file url
 		if !strings.HasPrefix(r.FileURL, "http") && r.FileURL != "" {
 			r.FileURL = "http:" + r.FileURL
