@@ -1,6 +1,7 @@
 package gonnachan
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -34,6 +35,13 @@ const (
 	RatingQuestionable = "q"
 	//RatingExplicit +18
 	RatingExplicit = "e"
+)
+
+const (
+	//ErrNoResults No results found
+	ErrNoResults = 1
+	//ErrEmpty No answer from server
+	ErrEmpty = 2
 )
 
 var (
@@ -107,36 +115,42 @@ func (c *KonachanPostRequest) APIrequest() string {
 }
 
 //GetResults runs the query obtained at APIrequest and returns KonachanPostResult
-func (c *KonachanPostRequest) GetResults() []KonachanPostResult {
+func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 	URL := c.APIrequest()
 	res, err := http.Get(URL)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 	defer res.Body.Close()
 	thing, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 	if string(thing) == "[]" {
-		return nil
+		return nil, errors.New("No results Response")
+	}
+	if string(thing) == "" {
+		return nil, errors.New("Empty Response")
 	}
 
 	//Single alocation
 	var results []KonachanPostResult
 	for x := 0; x < c.MaxResults; x++ {
-		r := KonachanPostResult{
-			ID:       gjson.GetBytes(thing, fmt.Sprintf("%v.id", x)).Int(),
-			Tags:     gjson.GetBytes(thing, fmt.Sprintf("%v.tags", x)).String(),
-			Author:   gjson.GetBytes(thing, fmt.Sprintf("%v.author", x)).String(),
-			Source:   gjson.GetBytes(thing, fmt.Sprintf("%v.source", x)).String(),
-			Score:    gjson.GetBytes(thing, fmt.Sprintf("%v.score", x)).Int(),
-			FileSize: gjson.GetBytes(thing, fmt.Sprintf("%v.file_size", x)).Int(),
-			FileURL:  gjson.GetBytes(thing, fmt.Sprintf("%v.file_url", x)).String(),
-			Rating:   gjson.GetBytes(thing, fmt.Sprintf("%v.rating", x)).String(),
-			Width:    gjson.GetBytes(thing, fmt.Sprintf("%v.width", x)).Int(),
-			Height:   gjson.GetBytes(thing, fmt.Sprintf("%v.height", x)).Int(),
+		r := KonachanPostResult{}
+		ID := gjson.GetBytes(thing, fmt.Sprintf("%v.id", x))
+		if !ID.Exists() {
+			break
 		}
+		r.ID = ID.Int()
+		r.Tags = gjson.GetBytes(thing, fmt.Sprintf("%v.tags", x)).String()
+		r.Author = gjson.GetBytes(thing, fmt.Sprintf("%v.author", x)).String()
+		r.Source = gjson.GetBytes(thing, fmt.Sprintf("%v.source", x)).String()
+		r.Score = gjson.GetBytes(thing, fmt.Sprintf("%v.score", x)).Int()
+		r.FileSize = gjson.GetBytes(thing, fmt.Sprintf("%v.file_size", x)).Int()
+		r.FileURL = gjson.GetBytes(thing, fmt.Sprintf("%v.file_url", x)).String()
+		r.Rating = gjson.GetBytes(thing, fmt.Sprintf("%v.rating", x)).String()
+		r.Width = gjson.GetBytes(thing, fmt.Sprintf("%v.width", x)).Int()
+		r.Height = gjson.GetBytes(thing, fmt.Sprintf("%v.height", x)).Int()
 		if c.TargetAPI == APIGelbooru {
 			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.hash", x)).String()
 		} else {
@@ -148,7 +162,7 @@ func (c *KonachanPostRequest) GetResults() []KonachanPostResult {
 		}
 		results = append(results, r)
 	}
-	return results
+	return results, nil
 }
 
 //KonachanPostResult has useful data obtained from the API
