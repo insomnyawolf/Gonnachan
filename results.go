@@ -88,11 +88,6 @@ type KonachanPostResult struct {
 	Height   int64  `json:"height"`
 }
 
-//Close EOL
-func (c *KonachanPostResult) Close() {
-	c = nil
-}
-
 //GetPostURL returns Konachan post url
 func (c *KonachanPostResult) GetPostURL() string {
 	return fmt.Sprintf("%v/post/show/%v", URL, c.ID)

@@ -85,11 +85,6 @@ type KonachanPostRequest struct {
 	serverType int
 }
 
-//Close EOL
-func (c *KonachanPostRequest) Close() {
-	c = nil
-}
-
 //APIrequest parse KonachanPostRequest to get the equivalent api query url
 func (c *KonachanPostRequest) APIrequest() string {
 	c.serverType = c.getServerKind()
