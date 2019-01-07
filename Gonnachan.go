@@ -124,12 +124,16 @@ func (c *KonachanPostRequest) GetResults() []KonachanPostResult {
 			Author:   gjson.GetBytes(thing, fmt.Sprintf("%v.author", x)).String(),
 			Source:   gjson.GetBytes(thing, fmt.Sprintf("%v.source", x)).String(),
 			Score:    gjson.GetBytes(thing, fmt.Sprintf("%v.score", x)).Int(),
-			Md5:      gjson.GetBytes(thing, fmt.Sprintf("%v.md5", x)).String(),
 			FileSize: gjson.GetBytes(thing, fmt.Sprintf("%v.file_size", x)).Int(),
 			FileURL:  gjson.GetBytes(thing, fmt.Sprintf("%v.file_url", x)).String(),
 			Rating:   gjson.GetBytes(thing, fmt.Sprintf("%v.rating", x)).String(),
 			Width:    gjson.GetBytes(thing, fmt.Sprintf("%v.width", x)).Int(),
 			Height:   gjson.GetBytes(thing, fmt.Sprintf("%v.height", x)).Int(),
+		}
+		if c.TargetAPI == Gelbooru {
+			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.hash", x)).String()
+		} else {
+			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.md5", x)).String()
 		}
 		//Fix url for konachan sites which doesn't start with http: on the file url
 		if !strings.HasPrefix(r.FileURL, "http") && r.FileURL != "" {
