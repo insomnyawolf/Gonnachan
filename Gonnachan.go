@@ -18,11 +18,6 @@ const (
 	Gelbooru = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&"
 )
 
-var (
-	//URL Base address for the requests
-	URL string
-)
-
 const (
 	//Rating
 
@@ -34,11 +29,16 @@ const (
 	RatingExplicit = "e"
 )
 
+var (
+	//URL Base address for the requests
+	URL string
+)
+
 //KonachanPostRequest store data prepare the api querry
 type KonachanPostRequest struct {
 	Tags       []string
 	BeforeID   int64
-	AfterID    int
+	AfterID    int64
 	RandOrder  bool
 	Rating     string
 	Height     int
