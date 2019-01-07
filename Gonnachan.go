@@ -12,10 +12,17 @@ import (
 )
 
 const (
-	//Konachan APIendPoint
-	Konachan = "http://konachan.com/post.json?"
-	//Gelbooru APIendPoint
-	Gelbooru = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&"
+	//APIKonachan APIendPoint
+	APIKonachan = "http://konachan.com/post.json?"
+	//APIYandere APIendPoint
+	APIYandere = "https://yande.re/post.json?"
+	//APIGelbooru APIendPoint
+	APIGelbooru = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&"
+	//APISafebooru APIendPoint
+	APISafebooru = "https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&"
+	//Danbooru APIendPoint
+	//Danbooru = "https://danbooru.donmai.us/posts/1.json"
+	//Im too lazy to fix this at the moment.
 )
 
 const (
@@ -91,7 +98,7 @@ func (c *KonachanPostRequest) APIrequest() string {
 
 	query := fmt.Sprintf("limit=%v&tags=%v", strconv.Itoa(c.MaxResults), tags)
 	if c.TargetAPI == "" {
-		URL = Konachan
+		URL = APIKonachan
 	} else {
 		URL = c.TargetAPI
 	}
@@ -130,7 +137,7 @@ func (c *KonachanPostRequest) GetResults() []KonachanPostResult {
 			Width:    gjson.GetBytes(thing, fmt.Sprintf("%v.width", x)).Int(),
 			Height:   gjson.GetBytes(thing, fmt.Sprintf("%v.height", x)).Int(),
 		}
-		if c.TargetAPI == Gelbooru {
+		if c.TargetAPI == APIGelbooru {
 			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.hash", x)).String()
 		} else {
 			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.md5", x)).String()
