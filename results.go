@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/tidwall/gjson"
@@ -90,5 +91,9 @@ type KonachanPostResult struct {
 
 //GetPostURL returns Konachan post url
 func (c *KonachanPostResult) GetPostURL() string {
-	return fmt.Sprintf("%v/post/show/%v", URL, c.ID)
+	url, err := url.Parse(c.FileURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return fmt.Sprintf("%v/post/show/%v", url.Hostname(), c.ID)
 }
