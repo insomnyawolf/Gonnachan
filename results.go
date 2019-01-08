@@ -11,8 +11,8 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-//GetResults runs the query obtained at APIrequest and returns KonachanPostResult
-func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
+//GetResults runs the query obtained at APIrequest and returns PostResult
+func (c *PostRequest) GetResults() ([]PostResult, error) {
 	URL := c.APIrequest()
 	res, err := http.Get(URL)
 	if err != nil {
@@ -31,13 +31,13 @@ func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 	}
 
 	//Single alocation
-	var results []KonachanPostResult
+	var results []PostResult
 	for x := 0; x < c.MaxResults; x++ {
 		id := gjson.GetBytes(thing, fmt.Sprintf("%v.id", x))
 		if !id.Exists() {
 			break
 		}
-		r := KonachanPostResult{
+		r := PostResult{
 			ID:       id.Int(),
 			Tags:     gjson.GetBytes(thing, fmt.Sprintf("%v.tags", x)).String(),
 			Author:   gjson.GetBytes(thing, fmt.Sprintf("%v.author", x)).String(),
@@ -47,16 +47,15 @@ func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 			Rating:   gjson.GetBytes(thing, fmt.Sprintf("%v.rating", x)).String(),
 			Width:    gjson.GetBytes(thing, fmt.Sprintf("%v.width", x)).Int(),
 			Height:   gjson.GetBytes(thing, fmt.Sprintf("%v.height", x)).Int(),
+			FileURL:  gjson.GetBytes(thing, fmt.Sprintf("%v.file_url", x)).String(),
+			Md5:      gjson.GetBytes(thing, fmt.Sprintf("%v.md5", x)).String(),
 		}
 
 		r.PostURL = fmt.Sprintf("%vpost/show/%v", c.TargetAPI, r.ID)
 
 		//Server Specific Code
 		if c.serverType == typeKonachan {
-			//Md5
-			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.md5", x)).String()
-			//ImageUrl
-			r.FileURL = gjson.GetBytes(thing, fmt.Sprintf("%v.file_url", x)).String()
+			//No specific code due to taking this as "default"
 		} else if c.serverType == typeGelboru {
 			//ImageUrl
 			image := gjson.GetBytes(thing, fmt.Sprintf("%v.image", x)).String()
@@ -77,8 +76,22 @@ func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 	return results, nil
 }
 
-//KonachanPostResult has useful data obtained from the API
-type KonachanPostResult struct {
+//RatingString Returns the human-readable sting for rating values
+func (c *PostResult) RatingString() string {
+	switch c.Rating {
+	case RatingSafe:
+		return "Safe"
+	case RatingQuestionable:
+		return "Questionable"
+	case RatingExplicit:
+		return "Explicit"
+	default:
+		return ""
+	}
+}
+
+//PostResult has useful data obtained from the API
+type PostResult struct {
 	ID       int64  `json:"id"`
 	Tags     string `json:"tags"`
 	Author   string `json:"author"`

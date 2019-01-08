@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-//KonachanPostRequest store data prepare the api querry
-type KonachanPostRequest struct {
+//PostRequest store data prepare the api querry
+type PostRequest struct {
 	Tags       []string
 	BeforeID   int64
 	AfterID    int64
@@ -21,8 +21,8 @@ type KonachanPostRequest struct {
 	url        string
 }
 
-//APIrequest parse KonachanPostRequest to get the equivalent api query url
-func (c *KonachanPostRequest) APIrequest() string {
+//APIrequest parse PostRequest to get the equivalent api query url
+func (c *PostRequest) APIrequest() string {
 	c.serverType = c.getServerKind()
 	tags := strings.Join(c.Tags, "+")
 
@@ -69,31 +69,19 @@ func (c *KonachanPostRequest) APIrequest() string {
 		endpoint = endpointKonachan
 	} else if c.serverType == typeGelboru {
 		endpoint = endpointGelboru
+	} else if c.serverType == typeSankaku {
+		endpoint = endpointSankaku
 	}
 	uri := c.url + endpoint + query
 	return uri
 }
 
-//RatingString Returns the human-readable sting for rating values
-func (c *KonachanPostResult) RatingString() string {
-	switch c.Rating {
-	case RatingSafe:
-		return "Safe"
-	case RatingQuestionable:
-		return "Questionable"
-	case RatingExplicit:
-		return "Explicit"
-	default:
-		return ""
-	}
-}
-
-func (c *KonachanPostRequest) getServerKind() int {
+func (c *PostRequest) getServerKind() int {
 	if contains(serversKonachan, c.TargetAPI) {
 		return typeKonachan
 	} else if contains(serversGelboru, c.TargetAPI) {
 		return typeGelboru
-	} else if contains(serversGelboru, c.TargetAPI) {
+	} else if contains(serversSankaku, c.TargetAPI) {
 		return typeSankaku
 	}
 	return typeUnsupported
