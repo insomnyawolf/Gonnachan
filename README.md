@@ -4,15 +4,16 @@
 
 Konachan api written in go WORK IN PROGRESS
 
-Working:
-    PostSearch
-        http://konachan.com/
-        https://yande.re/
-        https://gelbooru.com/"
-        https://safebooru.org/"
-        https://rule34.xxx/
+# Supported Servers	
+    http://konachan.com/
+    https://yande.re/
+    https://gelbooru.com/
+    https://safebooru.org/
+    https://rule34.xxx/
+# WIP Servers
+	https://sankakucomplex.com
 
-#Usage
+# Usage
 Imports
 ```go
 import "github.com/insomnyawolf/Gonnachan"
@@ -42,7 +43,7 @@ Methods:
 	//Results Execute and process query.
 	//Returns PostResult Struct with all the data needed
 	res := Req.GetResults()
-	
+
 	//If you wanna see what is the api query beeing made
 	//you can use the method APIrequest(), it will return a string
 	Req.APIrequest()
