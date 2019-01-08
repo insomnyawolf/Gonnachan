@@ -93,6 +93,8 @@ func (c *KonachanPostRequest) getServerKind() int {
 		return typeKonachan
 	} else if contains(serversGelboru, c.TargetAPI) {
 		return typeGelboru
+	} else if contains(serversGelboru, c.TargetAPI) {
+		return typeSankaku
 	}
 	return typeUnsupported
 }

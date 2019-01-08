@@ -63,6 +63,8 @@ func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 			r.FileURL = fmt.Sprintf("%s/images/%s/%s", c.TargetAPI, directory, image)
 			//Md5
 			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.hash", x)).String()
+		} else if c.serverType == typeSankaku {
+			//ToDo
 		}
 
 		//Fix url for konachan sites which doesn't start with http: on the file url
