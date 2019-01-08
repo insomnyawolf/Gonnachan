@@ -68,8 +68,8 @@ func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 		}
 
 		//Fix url for konachan sites which doesn't start with http: on the file url
-		if !strings.HasPrefix(r.FileURL, "http") && r.FileURL != "" {
-			r.FileURL = "http:" + r.FileURL
+		if !strings.HasPrefix(r.FileURL, "https") && r.FileURL != "" {
+			r.FileURL = "https:" + r.FileURL
 		}
 		results = append(results, r)
 	}

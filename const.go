@@ -10,7 +10,7 @@ var (
 
 const (
 	//ServerKonachan Host
-	ServerKonachan = "http://konachan.com/"
+	ServerKonachan = "https://konachan.com/"
 	//ServerYandere Host
 	ServerYandere = "https://yande.re/"
 	//ServerGelbooru Host
