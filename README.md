@@ -39,11 +39,13 @@ type PostRequest struct {
 ```
 Methods:
 ```go
-	//String, Final Query
-	Req.APIrequest()
 	//Results Execute and process query.
-	//Returns Struct with all the data needed
+	//Returns PostResult Struct with all the data needed
 	res := Req.GetResults()
+	
+	//If you wanna see what is the api query beeing made
+	//you can use the method APIrequest(), it will return a string
+	Req.APIrequest()
 ```
 PostResult:
 ```go
