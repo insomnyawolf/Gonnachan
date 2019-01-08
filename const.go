@@ -1,7 +1,7 @@
 package gonnachan
 
 var (
-	serversGelboru  = []string{ServerGelbooru, ServerSafebooru, ServerRule34}
+	serversGelboru  = []string{ServerGelbooru, ServerSafebooru, ServerRule34, ServerTBIB}
 	serversKonachan = []string{ServerKonachan, ServerYandere}
 	serversSankaku  = []string{ServerSankaku}
 )
@@ -15,10 +15,12 @@ const (
 	ServerYandere = "https://yande.re/"
 	//ServerGelbooru Host
 	ServerGelbooru = "https://gelbooru.com/"
-	//ServerSafebooru Host
-	ServerSafebooru = "https://safebooru.org/"
 	//ServerRule34 Host
 	ServerRule34 = "https://rule34.xxx/"
+	//ServerSafebooru Host
+	ServerSafebooru = "https://safebooru.org/"
+	//ServerTBIB Host
+	ServerTBIB = "https://tbib.org/"
 	//ServerSankaku Host
 	ServerSankaku = "https://capi-beta.sankakucomplex.com/"
 	//Common query to get post result in similar pages
