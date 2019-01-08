@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/tidwall/gjson"
@@ -50,6 +49,8 @@ func (c *KonachanPostRequest) GetResults() ([]KonachanPostResult, error) {
 			Height:   gjson.GetBytes(thing, fmt.Sprintf("%v.height", x)).Int(),
 		}
 
+		r.PostURL = fmt.Sprintf("%vpost/show/%v", c.TargetAPI, r.ID)
+
 		//Server Specific Code
 		if c.serverType == typeKonachan {
 			//Md5
@@ -89,13 +90,5 @@ type KonachanPostResult struct {
 	Rating   string `json:"rating"`
 	Width    int64  `json:"width"`
 	Height   int64  `json:"height"`
-}
-
-//GetPostURL returns Konachan post url
-func (c *KonachanPostResult) GetPostURL() string {
-	url, err := url.Parse(c.FileURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return fmt.Sprintf("%v/post/show/%v", url.Hostname(), c.ID)
+	PostURL  string
 }
