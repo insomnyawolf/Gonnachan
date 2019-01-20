@@ -56,13 +56,16 @@ func (c *PostRequest) GetResults() ([]PostResult, error) {
 		r.PostURL = fmt.Sprintf("%vpost/show/%v", c.TargetAPI, r.ID)
 
 		//Server Specific Code
+		//To be impoved
 		if c.serverType == typeKonachan {
 			//No specific code due to taking this as "default"
 		} else if c.serverType == typeGelboru {
 			//ImageUrl
-			image := gjson.GetBytes(thing, fmt.Sprintf("%v.image", x)).String()
-			directory := gjson.GetBytes(thing, fmt.Sprintf("%v.directory", x)).String()
-			r.FileURL = fmt.Sprintf("%s/images/%s/%s", c.TargetAPI, directory, image)
+			if c.TargetAPI != ServerGelbooru {
+				image := gjson.GetBytes(thing, fmt.Sprintf("%v.image", x)).String()
+				directory := gjson.GetBytes(thing, fmt.Sprintf("%v.directory", x)).String()
+				r.FileURL = fmt.Sprintf("%s/images/%s/%s", c.TargetAPI, directory, image)
+			}
 			//Md5
 			r.Md5 = gjson.GetBytes(thing, fmt.Sprintf("%v.hash", x)).String()
 		} else if c.serverType == typeSankaku {
