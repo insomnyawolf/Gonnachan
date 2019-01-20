@@ -8,26 +8,33 @@ import (
 
 //PostRequest store data prepare the api querry
 type PostRequest struct {
-	Tags       []string
-	BeforeID   int64
-	AfterID    int64
-	RandOrder  bool
-	Rating     string
-	Height     int
-	Width      int
-	MaxResults int
-	TargetAPI  string
-	serverType int
-	url        string
+	Tags         []string
+	ExcludedTags []string
+	BeforeID     int64
+	AfterID      int64
+	RandOrder    bool
+	Rating       string
+	Height       int
+	Width        int
+	MaxResults   int
+	TargetAPI    string
+	serverType   int
 }
 
 //APIrequest parse PostRequest to get the equivalent api query url
 func (c *PostRequest) APIrequest() string {
-	c.serverType = c.getServerKind()
-	tags := strings.Join(c.Tags, "+")
+	tags := strings.Join(c.Tags, " +")
+	excludedTags := strings.Join(c.ExcludedTags, " -")
+	if excludedTags != "" {
+		tags += " -" + excludedTags
+	}
 
 	if tags != "" {
 		tags += "+"
+	}
+
+	if c.Rating != "" {
+		tags += fmt.Sprintf("rating:%v+", c.Rating)
 	}
 
 	if c.BeforeID != 0 {
@@ -39,19 +46,15 @@ func (c *PostRequest) APIrequest() string {
 	}
 
 	if c.RandOrder {
-		tags += "order%3Arandom+"
-	}
-
-	if c.Rating != "" {
-		tags += fmt.Sprintf("rating%%3A%v+", c.Rating)
+		tags += "order:random+"
 	}
 
 	if c.Height != 0 {
-		tags += fmt.Sprintf("height%%3A%v+", c.Height)
+		tags += fmt.Sprintf("height:%v+", c.Height)
 	}
 
 	if c.Width != 0 {
-		tags += fmt.Sprintf("width%%3A%v+", c.Width)
+		tags += fmt.Sprintf("width:%v+", c.Width)
 	}
 
 	if c.MaxResults == 0 {
@@ -59,11 +62,11 @@ func (c *PostRequest) APIrequest() string {
 	}
 
 	query := fmt.Sprintf("limit=%v&tags=%v", strconv.Itoa(c.MaxResults), tags)
+
 	if c.TargetAPI == "" {
-		c.url = ServerGelbooru
-	} else {
-		c.url = c.TargetAPI
+		c.TargetAPI = ServerGelbooru
 	}
+	c.serverType = c.getServerKind()
 	var endpoint string
 	if c.serverType == typeKonachan {
 		endpoint = endpointKonachan
@@ -72,7 +75,7 @@ func (c *PostRequest) APIrequest() string {
 	} else if c.serverType == typeSankaku {
 		endpoint = endpointSankaku
 	}
-	uri := c.url + endpoint + query
+	uri := c.TargetAPI + endpoint + query
 	return uri
 }
 
