@@ -14,6 +14,7 @@ import (
 //GetResults runs the query obtained at APIrequest and returns PostResult
 func (c *PostRequest) GetResults() ([]PostResult, error) {
 	URL := c.APIrequest()
+	URL = strings.Replace(URL, " ", "%20", -1)
 	res, err := http.Get(URL)
 	if err != nil {
 		log.Fatal(err)
@@ -23,10 +24,11 @@ func (c *PostRequest) GetResults() ([]PostResult, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if string(thing) == "[]" {
+	APIresult := string(thing)
+	if APIresult == "[]" {
 		return nil, errors.New("No results")
 	}
-	if string(thing) == "" {
+	if APIresult == "" {
 		return nil, errors.New("Empty Response")
 	}
 
