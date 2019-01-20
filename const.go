@@ -54,11 +54,15 @@ const (
 	//Rating
 
 	//RatingSafe PG
-	RatingSafe = "s"
+	RatingSafe = "safe"
+	//RatingQuestionablePG +16 Not supported by every server
+	RatingQuestionablePG = "questionableless"
 	//RatingQuestionable +16
-	RatingQuestionable = "q"
+	RatingQuestionable = "questionable"
+	//RatingQuestionableExplicit +16 && +18 Not supported by every server
+	RatingQuestionableExplicit = "questionableplus"
 	//RatingExplicit +18
-	RatingExplicit = "e"
+	RatingExplicit = "explicit"
 )
 
 const (
